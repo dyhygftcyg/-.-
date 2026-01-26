@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>المدينة المنورة للخدمات - نظام الإدارة الكامل</title>
+    
+    <link rel="apple-touch-icon" href="https://r.jina.ai/i/0196887a270776b6b7ba904620f592ba">
+    <link rel="shortcut icon" href="https://r.jina.ai/i/0196887a270776b6b7ba904620f592ba">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --accent: #ff7eb9; --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+            --text-main: #ffffff; --glass-bg: rgba(15, 23, 42, 0.9);
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 15px;
+            background: #0f172a url('https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover; color: var(--text-main); min-height: 100vh;
+        }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: -1; }
+        
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(20px); z-index: 1000; background: rgba(15, 23, 42, 0.7);
+        }
+        .login-card { background: var(--glass-bg); padding: 35px; border-radius: 20px; text-align: center; width: 300px; border: 1px solid rgba(255,255,255,0.1); }
+
+        #mainApp { display: none; max-width: 1250px; margin: auto; }
+        header, .glass-card, .stat-card { 
+            background: var(--glass-bg); backdrop-filter: blur(12px); 
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); padding: 15px; margin-bottom: 15px;
+        }
+
+        .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .stat-card p { margin: 10px 0 0; font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+
+        .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 15px; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4); color: white; box-sizing: border-box; }
+        
+        button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-add { background: var(--accent); color: white; }
+        .btn-sell { background: var(--success); color: white; width: auto; padding: 4px 10px; }
+        .btn-danger { background: var(--danger); color: white; margin-top: 10px; font-size: 0.8rem; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { text-align: right; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .price-text { color: var(--success); font-weight: bold; }
+
+        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="overlay"></div>
+
+<div id="loginOverlay">
+    <div class="login-card">
+        <h2 style="color: var(--accent);">المدينة المنورة</h2>
+        <input type="text" id="userIn" placeholder="اسم المستخدم">
+        <input type="password" id="passIn" placeholder="كلمة المرور">
+        <button class="btn-add" onclick="handleLogin()">دخول للنظام</button>
+    </div>
+</div>
+
+<div id="mainApp">
+    <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <h1 style="margin: 0; font-size: 1.5rem;">المدينة المنورة للخدمات</h1>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="exportToExcel()" style="background: #1d6f42; width: auto;">Excel</button>
+            <button onclick="location.reload()" style="background: #475569; width: auto;">خروج</button>
+        </div>
+    </header>
+
+    <div class="stats-bar">
+        <div class="stat-card"><h4>قيمة المخزن</h4><p id="totalInvPrice">0</p></div>
+        <div class="stat-card"><h4>إجمالي المبيعات</h4><p id="totalSalesCash" style="color: var(--success);">0</p></div>
+        <div class="stat-card"><h4>أصناف المخزن</h4><p id="countInv" style="color: var(--warning);">0</p></div>
+        <div class="stat-card"><h4>عمليات البيع</h4><p id="countSales" style="color: var(--success);">0</p></div>
+    </div>
+
+    <div class="main-grid">
+        <div class="side">
+            <div class="glass-card">
+                <h3>➕ إضافة صنف</h3>
+                <input type="text" id="name" placeholder="اسم الصنف">
+                <input type="number" id="price" placeholder="سعر البيع">
+                <select id="type"><option value="هاتف">هاتف</option><option value="اسبير">اسبير</option></select>
+                <input type="text" id="detail" placeholder="التفاصيل / الكمية">
+                <button class="btn-add" onclick="saveItem()">حفظ</button>
+            </div>
+
+            <div class="glass-card">
+                <h3>⚙️ إعدادات البيانات</h3>
+                <button class="btn-danger" onclick="clearSales()">🗑️ مسح سجل المبيعات</button>
+                <button class="btn-danger" style="background: #7f1d1d;" onclick="clearInventory()">🚨 تفريغ المخزن بالكامل</button>
+                <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 10px;">* تنبيه: الحذف نهائي ولا يمكن التراجع عنه.</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="glass-card">
+                <h3>💰 البيع والتحصيل</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="cust" placeholder="اسم الزبون (اختياري)">
+                    <input type="number" id="paid" placeholder="المبلغ المدفوع">
+                </div>
+                <h3>📦 المخزن الحالي</h3>
+                <table id="invTable">
+                    <thead><tr><th>الصنف</th><th>التفاصيل</th><th>السعر</th><th>إجراء</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="glass-card">
+                <h3>✅ السجل الأخير</h3>
+                <table id="salesTable">
+                    <thead><tr><th>الصنف</th><th>المبلغ</th><th>التاريخ</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const AUTH = { user: "المدينة", pass: "009944" };
+
+    function handleLogin() {
+        if(document.getElementById('userIn').value === AUTH.user && document.getElementById('passIn').value === AUTH.pass) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            render();
+        } else { alert("اسم المستخدم أو كلمة المرور خطأ!"); }
+    }
+
+    let inventory = JSON.parse(localStorage.getItem('m_inv')) || [];
+    let sales = JSON.parse(localStorage.getItem('m_sales')) || [];
+
+    function saveItem() {
+        const name = document.getElementById('name').value;
+        const price = parseFloat(document.getElementById('price').value);
+        if(!name || !price) return alert("يرجى ملء الاسم والسعر");
+
+        const item = {
+            name: name,
+            price: price,
+            type: document.getElementById('type').value,
+            detail: document.getElementById('detail').value,
+            qty: document.getElementById('type').value === 'اسبير' ? parseInt(document.getElementById('detail').value) || 1 : 1
+        };
+        inventory.push(item);
+        update();
+        document.querySelectorAll('.side input').forEach(i => i.value = '');
+    }
+
+    function sell(index) {
+        const item = inventory[index];
+        const paid = parseFloat(document.getElementById('paid').value) || item.price;
+        
+        sales.push({ name: item.name, paid: paid, date: new Date().toLocaleString('ar-EG') });
+        
+        if(item.type === 'اسبير' && item.qty > 1) inventory[index].qty--;
+        else inventory.splice(index, 1);
+        
+        update();
+    }
+
+    function clearSales() {
+        if(confirm("هل أنت متأكد من حذف سجل المبيعات بالكامل؟ سيتم تصفير إجمالي الأرباح.")) {
+            sales = [];
+            update();
+        }
+    }
+
+    function clearInventory() {
+        if(confirm("🚨 تحذير خطير: هل تريد مسح كل البضاعة الموجودة في المخزن؟")) {
+            inventory = [];
+            update();
+        }
+    }
+
+    function update() {
+        localStorage.setItem('m_inv', JSON.stringify(inventory));
+        localStorage.setItem('m_sales', JSON.stringify(sales));
+        render();
+    }
+
+    function render() {
+        document.querySelector('#invTable tbody').innerHTML = inventory.map((it, i) => `
+            <tr><td>${it.name}</td><td>${it.type==='هاتف'?it.detail:'كمية: '+it.qty}</td>
+            <td class="price-text">${it.price.toLocaleString()}</td>
+            <td><button onclick="sell(${i})" class="btn-sell">بيع</button></td></tr>`).join('');
+        
+        document.querySelector('#salesTable tbody').innerHTML = sales.slice(-10).reverse().map(s => `
+            <tr><td>${s.name}</td><td class="price-text">${s.paid.toLocaleString()}</td><td>${s.date}</td></tr>`).join('');
+
+        const invTotal = inventory.reduce((sum, it) => sum + (it.price * (it.type === 'اسبير' ? it.qty : 1)), 0);
+        const salesTotal = sales.reduce((sum, s) => sum + s.paid, 0);
+
+        document.getElementById('totalInvPrice').innerText = invTotal.toLocaleString() + " ج.س";
+        document.getElementById('totalSalesCash').innerText = salesTotal.toLocaleString() + " ج.س";
+        document.getElementById('countInv').innerText = inventory.length;
+        document.getElementById('countSales').innerText = sales.length;
+    }
+
+    function exportToExcel() {
+        if(sales.length === 0) return alert("السجل فارغ حالياً");
+        const ws = XLSX.utils.json_to_sheet(sales);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "المبيعات");
+        XLSX.writeFile(wb, "مبيعات_المدينة.xlsx");
+    }
+</script>
+</body>
+</html>
