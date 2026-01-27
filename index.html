@@ -19,7 +19,6 @@
             font-family: 'Segoe UI', sans-serif; 
             margin: 0; padding: 15px; 
             color: white; min-height: 100vh;
-            /* إضافة خلفية تعبر عن محل هواتف */
             background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), 
                         url('https://images.unsplash.com/photo-1556656793-062ff987b487?q=80&w=2070&auto=format&fit=crop'); 
             background-size: cover;
@@ -46,8 +45,6 @@
             box-sizing: border-box; outline: none;
         }
 
-        input:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
-
         button { 
             width: 100%; padding: 12px; border-radius: 10px; 
             border: none; font-weight: bold; cursor: pointer; 
@@ -55,7 +52,6 @@
         }
 
         .btn-add { background: linear-gradient(45deg, var(--accent), #3a7bd5); color: white; }
-        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,210,255,0.4); }
         
         .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .stat-card { 
@@ -65,11 +61,8 @@
         }
 
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { background: rgba(255,255,255,0.05); padding: 12px; text-align: right; font-size: 0.9rem; }
+        th { background: rgba(255,255,255,0.05); padding: 12px; text-align: right; }
         td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-        .btn-action { background: none; border: none; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
-        .btn-action:hover { transform: scale(1.2); }
 
         #loginOverlay { 
             position: fixed; inset: 0; 
@@ -85,7 +78,7 @@
 <div id="loginOverlay">
     <div class="card" style="width: 320px; text-align: center;">
         <h1 style="color: var(--accent); margin-bottom: 5px;">المدينة المنورة</h1>
-        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">نظام إدارة مبيعات الهواتف</p>
+        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">نظام المبيعات السحابي</p>
         <input type="password" id="passIn" placeholder="كلمة المرور">
         <button class="btn-add" onclick="login()">دخول للنظام 📱</button>
     </div>
@@ -93,7 +86,7 @@
 
 <div id="mainApp" style="display:none">
     <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="margin:0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">مركز المدينة المنورة 📱</h2>
+        <h2 style="margin:0;">مركز المدينة المنورة 📱</h2>
         <div style="display: flex; gap: 10px;">
             <button onclick="exportToPDF()" style="background:var(--info); color:white; width:auto; padding: 5px 15px;">📄 تقرير PDF</button>
             <button onclick="location.reload()" style="background:var(--danger); color:white; width:auto; padding: 5px 15px;">خروج</button>
@@ -102,31 +95,30 @@
 
     <div class="stats-bar">
         <div class="stat-card" style="border-color: var(--success)"><h4>المبيعات</h4><p id="statSales">0</p></div>
-        <div class="stat-card" style="border-color: var(--danger)"><h4>عليه (للزبون)</h4><p id="statDebtsTo">0</p></div>
-        <div class="stat-card" style="border-color: var(--success)"><h4>له (للمورد)</h4><p id="statDebtsFor">0</p></div>
-        <div class="stat-card" style="border-color: var(--accent)"><h4>قيمة المخزن</h4><p id="statInv">0</p></div>
+        <div class="stat-card" style="border-color: var(--danger)"><h4>عليه (ديون)</h4><p id="statDebtsTo">0</p></div>
+        <div class="stat-card" style="border-color: var(--success)"><h4>له (موردين)</h4><p id="statDebtsFor">0</p></div>
+        <div class="stat-card" style="border-color: var(--accent)"><h4>المخزن</h4><p id="statInv">0</p></div>
     </div>
 
     <div class="grid">
         <aside>
             <div class="card">
-                <h3 style="color: var(--accent)">➕ جهاز/صنف جديد</h3>
-                <input type="text" id="pName" placeholder="نوع الهاتف / الصنف">
-                <input type="number" id="pCost" placeholder="سعر التكلفة">
+                <h3>➕ إضافة صنف</h3>
+                <input type="text" id="pName" placeholder="اسم الهاتف">
+                <input type="number" id="pCost" placeholder="التكلفة">
                 <input type="number" id="pPrice" placeholder="سعر البيع">
                 <input type="number" id="pQty" placeholder="الكمية">
-                <button class="btn-add" onclick="addItem()">إضافة للمخزن</button>
+                <button class="btn-add" onclick="addItem()">إضافة للسحابة</button>
             </div>
-
             <div class="card">
-                <h3 style="color: var(--warning)">📝 تسجيل دين</h3>
-                <input type="text" id="debtName" placeholder="اسم العميل / المورد">
+                <h3>📝 تسجيل دين</h3>
+                <input type="text" id="debtName" placeholder="الاسم">
                 <input type="number" id="debtAmt" placeholder="المبلغ">
                 <select id="debtType">
-                    <option value="عليه">عليه (دين من زبون)</option>
-                    <option value="له">له (دين لمورد)</option>
+                    <option value="عليه">عليه</option>
+                    <option value="له">له</option>
                 </select>
-                <button style="background:var(--warning); color:white" onclick="saveGeneralDebt()">حفظ العملية</button>
+                <button style="background:var(--warning); color:white" onclick="saveGeneralDebt()">حفظ الدين</button>
             </div>
         </aside>
 
@@ -134,17 +126,16 @@
             <div id="pdfContent">
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3 style="color: var(--accent)">🔍 المخزن السحابي</h3>
-                        <input type="text" id="searchBox" onkeyup="render()" placeholder="بحث عن هاتف..." style="width:200px; margin:0">
+                        <h3>🔍 المخزن الموحد</h3>
+                        <input type="text" id="searchBox" onkeyup="render()" placeholder="بحث..." style="width:150px">
                     </div>
                     <table id="invTable">
-                        <thead><tr><th>الجهاز</th><th>الكمية</th><th>السعر</th><th>حذف</th></tr></thead>
+                        <thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>حذف</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
-
                 <div class="card">
-                    <h3 style="color: var(--warning)">📋 سجل الديون والعمليات</h3>
+                    <h3>📋 سجل العمليات</h3>
                     <table id="logsTable">
                         <thead><tr><th>التاريخ</th><th>الاسم</th><th>المبلغ</th><th>الحالة</th><th>إجراء</th></tr></thead>
                         <tbody></tbody>
@@ -156,11 +147,11 @@
 </div>
 
 <script>
-    // بيانات Firebase الخاصة بك
+    // الإعدادات المحدثة بالرابط الجديد
     const firebaseConfig = {
       apiKey: "AIzaSyB0UM5ITWjtqMFPwAEcVFZbMu4831d_6p0",
       authDomain: "al-madin.firebaseapp.com",
-      databaseURL: "https://al-mad-default-rtdb.firebaseio.com",
+      databaseURL: "https://al-mad-default-rtdb.firebaseio.com", // تم التعديل هنا
       projectId: "al-madin",
       storageBucket: "al-madin.firebasestorage.app",
       messagingSenderId: "961981230421",
@@ -168,7 +159,7 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-    const dbRef = firebase.database().ref('almadina_v_final');
+    const dbRef = firebase.database().ref('almadina_cloud_store');
 
     let db = { inventory: [], sales: [], debts: [] };
 
@@ -177,13 +168,17 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             startSync();
-        } else { alert("كلمة المرور غير صحيحة"); }
+        } else { alert("خطأ!"); }
     }
 
     function startSync() {
+        // الاتصال المباشر بالسحابة
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) { db = data; render(); }
+            if (data) { 
+                db = data; 
+                render(); 
+            }
         });
     }
 
@@ -195,7 +190,7 @@
         if(!name || !price) return;
         if(!db.inventory) db.inventory = [];
         db.inventory.push({ name, cost, price, qty });
-        dbRef.set(db);
+        dbRef.set(db); // الرفع للسحابة
         ['pName','pCost','pPrice','pQty'].forEach(id => document.getElementById(id).value = '');
     }
 
@@ -213,13 +208,13 @@
     function collectDebt(index) {
         const d = db.debts[index];
         if(!db.sales) db.sales = [];
-        db.sales.push({ name: "تحصيل: " + d.name, paid: d.amount, date: new Date().toLocaleString() });
+        db.sales.push({ name: "تحصيل من: " + d.name, paid: d.amount, date: new Date().toLocaleString() });
         db.debts.splice(index, 1);
         dbRef.set(db);
     }
 
     function deleteLog(type, index) {
-        if(confirm("هل أنت متأكد من الحذف؟")) {
+        if(confirm("حذف نهائي؟")) {
             db[type].splice(index, 1);
             dbRef.set(db);
         }
@@ -227,20 +222,12 @@
 
     function exportToPDF() {
         const element = document.getElementById('pdfContent');
-        const opt = {
-            margin: 10,
-            filename: 'تقرير_محل_المدينة.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, backgroundColor: '#0f172a' },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save();
+        html2pdf().from(element).save('تقرير_المدينة.pdf');
     }
 
     function render() {
         const search = document.getElementById('searchBox').value.toLowerCase();
         
-        // عرض المخزن
         document.querySelector('#invTable tbody').innerHTML = (db.inventory || [])
             .filter(it => it.name.toLowerCase().includes(search))
             .map((it, i) => `
@@ -248,32 +235,30 @@
                     <td>${it.name}</td>
                     <td>${it.qty}</td>
                     <td>${it.price.toLocaleString()}</td>
-                    <td><button class="btn-action" onclick="deleteLog('inventory', ${i})">🗑️</button></td>
+                    <td><button onclick="deleteLog('inventory', ${i})" style="background:none; cursor:pointer">🗑️</button></td>
                 </tr>`).join('');
 
-        // عرض الديون
         document.querySelector('#logsTable tbody').innerHTML = (db.debts || []).map((d, i) => `
             <tr>
                 <td>${d.date}</td>
                 <td>${d.name}</td>
-                <td>${d.amount.toLocaleString()}</td>
-                <td style="color:${d.type=='له'?'var(--success)':'var(--danger)'}">${d.type}</td>
+                <td>${d.amount}</td>
+                <td style="color:${d.type=='له'?'#00ff88':'#ff416c'}">${d.type}</td>
                 <td>
-                    <button class="btn-action" onclick="collectDebt(${i})">✅</button>
-                    <button class="btn-action" onclick="deleteLog('debts', ${i})">🗑️</button>
+                    <button onclick="collectDebt(${i})" style="background:none; cursor:pointer">✅</button>
+                    <button onclick="deleteLog('debts', ${i})" style="background:none; cursor:pointer">🗑️</button>
                 </td>
             </tr>`).join('');
 
-        // تحديث الأرقام
         const sales = (db.sales || []).reduce((s,i)=>s+i.paid, 0);
         const dTo = (db.debts || []).filter(d=>d.type=='عليه').reduce((s,i)=>s+i.amount, 0);
         const dFor = (db.debts || []).filter(d=>d.type=='له').reduce((s,i)=>s+i.amount, 0);
         const inv = (db.inventory || []).reduce((s,i)=>s+(i.price*i.qty), 0);
 
-        document.getElementById('statSales').innerText = sales.toLocaleString() + " ج";
-        document.getElementById('statDebtsTo').innerText = dTo.toLocaleString() + " ج";
-        document.getElementById('statDebtsFor').innerText = dFor.toLocaleString() + " ج";
-        document.getElementById('statInv').innerText = inv.toLocaleString() + " ج";
+        document.getElementById('statSales').innerText = sales.toLocaleString();
+        document.getElementById('statDebtsTo').innerText = dTo.toLocaleString();
+        document.getElementById('statDebtsFor').innerText = dFor.toLocaleString();
+        document.getElementById('statInv').innerText = inv.toLocaleString();
     }
 </script>
 </body>
