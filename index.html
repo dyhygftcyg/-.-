@@ -2,7 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>المدينة المنورة - نظام سحابي للهواتف</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المدينة المنورة - Global Phone System</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -10,148 +11,145 @@
 
     <style>
         :root { 
-            --accent: #00d2ff; --success: #00ff88; --danger: #ff416c; 
-            --warning: #ffb100; --info: #3b82f6; 
-            --glass: rgba(15, 23, 42, 0.85); 
+            --primary: #00d2ff; --success: #00ff88; --danger: #ff416c; 
+            --warning: #ffb100; --card-bg: rgba(15, 23, 42, 0.8); 
         }
 
         body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; padding: 15px; 
+            font-family: 'Cairo', sans-serif; margin: 0; padding: 15px; 
             color: white; min-height: 100vh;
-            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), 
-                        url('https://images.unsplash.com/photo-1556656793-062ff987b487?q=80&w=2070&auto=format&fit=crop'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=2000&auto=format&fit=crop'); 
+            background-size: cover; background-position: center; background-attachment: fixed;
         }
 
-        .card { 
-            background: var(--glass); 
-            backdrop-filter: blur(12px);
-            border-radius: 20px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            padding: 20px; 
-            margin-bottom: 15px; 
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        .glass { 
+            background: var(--card-bg); backdrop-filter: blur(15px);
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px;
         }
 
-        .grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-item { text-align: center; padding: 15px; border-radius: 15px; transition: 0.3s; border-bottom: 3px solid transparent; }
+        .stat-item:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); }
 
+        .main-layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+        
         input, select { 
-            width: 100%; padding: 12px; margin: 8px 0; 
-            border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); 
-            background: rgba(255,255,255,0.05); color: white; 
-            box-sizing: border-box; outline: none;
+            width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3);
+            color: white; outline: none; font-size: 14px;
         }
 
         button { 
-            width: 100%; padding: 12px; border-radius: 10px; 
-            border: none; font-weight: bold; cursor: pointer; 
-            transition: 0.3s; margin-top: 5px; text-transform: uppercase;
+            cursor: pointer; border: none; border-radius: 10px; font-weight: bold; 
+            transition: 0.2s; active { transform: scale(0.95); }
         }
 
-        .btn-add { background: linear-gradient(45deg, var(--accent), #3a7bd5); color: white; }
-        
-        .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-        .stat-card { 
-            background: var(--glass); backdrop-filter: blur(10px);
-            padding: 15px; border-radius: 15px; 
-            border-bottom: 4px solid var(--accent); text-align: center; 
-        }
+        .btn-main { background: linear-gradient(90deg, #00d2ff, #3a7bd5); color: white; padding: 12px; width: 100%; }
+        .btn-buy { background: var(--success); color: #000; padding: 5px 10px; font-size: 12px; }
+        .btn-sell { background: var(--primary); color: #000; padding: 5px 10px; font-size: 12px; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { background: rgba(255,255,255,0.05); padding: 12px; text-align: right; }
-        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: right; color: var(--primary); padding: 15px 10px; border-bottom: 2px solid rgba(255,255,255,0.1); }
+        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        .low-stock { color: var(--danger); font-weight: bold; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.5; } }
 
         #loginOverlay { 
-            position: fixed; inset: 0; 
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            z-index: 2000; display: flex; align-items: center; justify-content: center; 
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
-    <div class="card" style="width: 320px; text-align: center;">
-        <h1 style="color: var(--accent); margin-bottom: 5px;">المدينة المنورة</h1>
-        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">نظام المبيعات السحابي</p>
-        <input type="password" id="passIn" placeholder="كلمة المرور">
-        <button class="btn-add" onclick="login()">دخول للنظام 📱</button>
+    <div class="glass" style="width: 300px; text-align: center;">
+        <h2 style="color: var(--primary)">AL-MADINA</h2>
+        <input type="password" id="passIn" placeholder="رمز الدخول">
+        <button class="btn-main" onclick="login()">دخول النظام</button>
     </div>
 </div>
 
 <div id="mainApp" style="display:none">
-    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="margin:0;">مركز المدينة المنورة 📱</h2>
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h1 style="margin:0; font-size: 24px; letter-spacing: 1px;">AL-MADINA <span style="color: var(--primary)">SMART SYSTEM</span></h1>
         <div style="display: flex; gap: 10px;">
-            <button onclick="exportToPDF()" style="background:var(--info); color:white; width:auto; padding: 5px 15px;">📄 تقرير PDF</button>
-            <button onclick="location.reload()" style="background:var(--danger); color:white; width:auto; padding: 5px 15px;">خروج</button>
+            <button onclick="exportToPDF()" style="background: white; color: black; padding: 8px 15px;">PDF</button>
+            <button onclick="location.reload()" style="background: var(--danger); color: white; padding: 8px 15px;">خروج</button>
         </div>
     </header>
 
-    <div class="stats-bar">
-        <div class="stat-card" style="border-color: var(--success)"><h4>المبيعات</h4><p id="statSales">0</p></div>
-        <div class="stat-card" style="border-color: var(--danger)"><h4>عليه (ديون)</h4><p id="statDebtsTo">0</p></div>
-        <div class="stat-card" style="border-color: var(--success)"><h4>له (موردين)</h4><p id="statDebtsFor">0</p></div>
-        <div class="stat-card" style="border-color: var(--accent)"><h4>المخزن</h4><p id="statInv">0</p></div>
+    <div class="stats-grid">
+        <div class="glass stat-item" style="border-color: var(--success)"><h4>المبيعات</h4><p id="statSales" style="color: var(--success)">0</p></div>
+        <div class="glass stat-item" style="border-color: var(--danger)"><h4>ديون الزبائن</h4><p id="statDebtsTo" style="color: var(--danger)">0</p></div>
+        <div class="glass stat-item" style="border-color: var(--warning)"><h4>ديون الموردين</h4><p id="statDebtsFor" style="color: var(--warning)">0</p></div>
+        <div class="glass stat-item" style="border-color: var(--primary)"><h4>قيمة المخزن</h4><p id="statInv" style="color: var(--primary)">0</p></div>
     </div>
 
-    <div class="grid">
+    <div class="main-layout">
         <aside>
-            <div class="card">
-                <h3>➕ إضافة صنف</h3>
-                <input type="text" id="pName" placeholder="اسم الهاتف">
-                <input type="number" id="pCost" placeholder="التكلفة">
+            <div class="glass" style="margin-bottom: 20px;">
+                <h3 style="margin-top:0">📦 صنف جديد</h3>
+                <input type="text" id="pName" placeholder="اسم الجهاز/القطعة">
+                <input type="number" id="pCost" placeholder="سعر الشراء">
                 <input type="number" id="pPrice" placeholder="سعر البيع">
-                <input type="number" id="pQty" placeholder="الكمية">
-                <button class="btn-add" onclick="addItem()">إضافة للسحابة</button>
+                <input type="number" id="pQty" placeholder="الكمية الافتتاحية">
+                <button class="btn-main" onclick="addItem()">إضافة للمخزن</button>
             </div>
-            <div class="card">
-                <h3>📝 تسجيل دين</h3>
+
+            <div class="glass">
+                <h3 style="margin-top:0">📝 حركة الديون</h3>
                 <input type="text" id="debtName" placeholder="الاسم">
                 <input type="number" id="debtAmt" placeholder="المبلغ">
                 <select id="debtType">
-                    <option value="عليه">عليه</option>
-                    <option value="له">له</option>
+                    <option value="عليه">عليه (أريد منه)</option>
+                    <option value="له">له (يريد مني)</option>
                 </select>
-                <button style="background:var(--warning); color:white" onclick="saveGeneralDebt()">حفظ الدين</button>
+                <button style="background: var(--warning); color: black; padding:12px; width:100%" onclick="saveGeneralDebt()">تسجيل الدين</button>
             </div>
         </aside>
 
         <main>
-            <div id="pdfContent">
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3>🔍 المخزن الموحد</h3>
-                        <input type="text" id="searchBox" onkeyup="render()" placeholder="بحث..." style="width:150px">
-                    </div>
-                    <table id="invTable">
-                        <thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>حذف</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
+            <div id="pdfContent" class="glass">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin:0">🔍 إدارة المخزن والعمليات</h3>
+                    <input type="text" id="searchBox" onkeyup="render()" placeholder="ابحث عن جهاز..." style="width:200px">
                 </div>
-                <div class="card">
-                    <h3>📋 سجل العمليات</h3>
-                    <table id="logsTable">
-                        <thead><tr><th>التاريخ</th><th>الاسم</th><th>المبلغ</th><th>الحالة</th><th>إجراء</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+                <table id="invTable">
+                    <thead>
+                        <tr>
+                            <th>الجهاز</th>
+                            <th>الكمية</th>
+                            <th>البيع</th>
+                            <th>إجراءات سريعة</th>
+                            <th>حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="glass" style="margin-top: 20px;">
+                <h3>📋 سجل الديون النشطة</h3>
+                <table id="logsTable">
+                    <thead><tr><th>التاريخ</th><th>الاسم</th><th>المبلغ</th><th>الحالة</th><th>إجراء</th></tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </main>
     </div>
 </div>
 
 <script>
-    // الإعدادات المحدثة بالرابط الجديد
     const firebaseConfig = {
       apiKey: "AIzaSyB0UM5ITWjtqMFPwAEcVFZbMu4831d_6p0",
       authDomain: "al-madin.firebaseapp.com",
-      databaseURL: "https://al-mad-default-rtdb.firebaseio.com", // تم التعديل هنا
+      databaseURL: "https://al-mad-default-rtdb.firebaseio.com",
       projectId: "al-madin",
       storageBucket: "al-madin.firebasestorage.app",
       messagingSenderId: "961981230421",
@@ -159,7 +157,7 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-    const dbRef = firebase.database().ref('almadina_cloud_store');
+    const dbRef = firebase.database().ref('almadina_global_v6');
 
     let db = { inventory: [], sales: [], debts: [] };
 
@@ -168,17 +166,13 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             startSync();
-        } else { alert("خطأ!"); }
+        } else { alert("رمز الدخول خاطئ!"); }
     }
 
     function startSync() {
-        // الاتصال المباشر بالسحابة
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) { 
-                db = data; 
-                render(); 
-            }
+            if (data) { db = data; render(); }
         });
     }
 
@@ -186,12 +180,26 @@
         const name = document.getElementById('pName').value;
         const cost = parseFloat(document.getElementById('pCost').value);
         const price = parseFloat(document.getElementById('pPrice').value);
-        const qty = parseInt(document.getElementById('pQty').value) || 1;
+        const qty = parseInt(document.getElementById('pQty').value) || 0;
         if(!name || !price) return;
         if(!db.inventory) db.inventory = [];
         db.inventory.push({ name, cost, price, qty });
-        dbRef.set(db); // الرفع للسحابة
+        dbRef.set(db);
         ['pName','pCost','pPrice','pQty'].forEach(id => document.getElementById(id).value = '');
+    }
+
+    function quickTrade(index, type) {
+        const item = db.inventory[index];
+        if(type === 'sell') {
+            if(item.qty > 0) {
+                item.qty--;
+                if(!db.sales) db.sales = [];
+                db.sales.push({ name: item.name, paid: item.price, date: new Date().toLocaleString() });
+            } else { alert("المخزن فارغ!"); return; }
+        } else {
+            item.qty++;
+        }
+        dbRef.set(db);
     }
 
     function saveGeneralDebt() {
@@ -208,57 +216,62 @@
     function collectDebt(index) {
         const d = db.debts[index];
         if(!db.sales) db.sales = [];
-        db.sales.push({ name: "تحصيل من: " + d.name, paid: d.amount, date: new Date().toLocaleString() });
+        db.sales.push({ name: "تحصيل: " + d.name, paid: d.amount, date: new Date().toLocaleString() });
         db.debts.splice(index, 1);
         dbRef.set(db);
     }
 
     function deleteLog(type, index) {
-        if(confirm("حذف نهائي؟")) {
-            db[type].splice(index, 1);
-            dbRef.set(db);
-        }
+        if(confirm("حذف؟")) { db[type].splice(index, 1); dbRef.set(db); }
     }
 
     function exportToPDF() {
         const element = document.getElementById('pdfContent');
-        html2pdf().from(element).save('تقرير_المدينة.pdf');
+        html2pdf().from(element).save('تقرير_المدينة_المنورة.pdf');
     }
 
     function render() {
         const search = document.getElementById('searchBox').value.toLowerCase();
         
+        // رندر المخزن
         document.querySelector('#invTable tbody').innerHTML = (db.inventory || [])
+            .map((it, i) => ({...it, id: i}))
             .filter(it => it.name.toLowerCase().includes(search))
-            .map((it, i) => `
+            .map(it => `
                 <tr>
                     <td>${it.name}</td>
-                    <td>${it.qty}</td>
+                    <td class="${it.qty < 3 ? 'low-stock' : ''}">${it.qty}</td>
                     <td>${it.price.toLocaleString()}</td>
-                    <td><button onclick="deleteLog('inventory', ${i})" style="background:none; cursor:pointer">🗑️</button></td>
+                    <td>
+                        <button class="btn-sell" onclick="quickTrade(${it.id}, 'sell')">بيع -1</button>
+                        <button class="btn-buy" onclick="quickTrade(${it.id}, 'buy')">شراء +1</button>
+                    </td>
+                    <td><button onclick="deleteLog('inventory', ${it.id})" style="background:none; color:var(--danger)">🗑️</button></td>
                 </tr>`).join('');
 
+        // رندر الديون
         document.querySelector('#logsTable tbody').innerHTML = (db.debts || []).map((d, i) => `
             <tr>
                 <td>${d.date}</td>
                 <td>${d.name}</td>
-                <td>${d.amount}</td>
-                <td style="color:${d.type=='له'?'#00ff88':'#ff416c'}">${d.type}</td>
+                <td>${d.amount.toLocaleString()}</td>
+                <td style="color:${d.type=='له'?'var(--success)':'var(--danger)'}">${d.type}</td>
                 <td>
-                    <button onclick="collectDebt(${i})" style="background:none; cursor:pointer">✅</button>
-                    <button onclick="deleteLog('debts', ${i})" style="background:none; cursor:pointer">🗑️</button>
+                    <button onclick="collectDebt(${i})">✅</button>
+                    <button onclick="deleteLog('debts', ${i})">🗑️</button>
                 </td>
             </tr>`).join('');
 
+        // تحديث الأرقام
         const sales = (db.sales || []).reduce((s,i)=>s+i.paid, 0);
         const dTo = (db.debts || []).filter(d=>d.type=='عليه').reduce((s,i)=>s+i.amount, 0);
         const dFor = (db.debts || []).filter(d=>d.type=='له').reduce((s,i)=>s+i.amount, 0);
-        const inv = (db.inventory || []).reduce((s,i)=>s+(i.price*i.qty), 0);
+        const invValue = (db.inventory || []).reduce((s,i)=>s+(i.price*i.qty), 0);
 
-        document.getElementById('statSales').innerText = sales.toLocaleString();
-        document.getElementById('statDebtsTo').innerText = dTo.toLocaleString();
-        document.getElementById('statDebtsFor').innerText = dFor.toLocaleString();
-        document.getElementById('statInv').innerText = inv.toLocaleString();
+        document.getElementById('statSales').innerText = sales.toLocaleString() + " ج.س";
+        document.getElementById('statDebtsTo').innerText = dTo.toLocaleString() + " ج.س";
+        document.getElementById('statDebtsFor').innerText = dFor.toLocaleString() + " ج.س";
+        document.getElementById('statInv').innerText = invValue.toLocaleString() + " ج.س";
     }
 </script>
 </body>
