@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المدينة المنورة - Global Phone System</title>
+    <title>المدينة المنورة | الإدارة الملكية</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -11,134 +11,137 @@
 
     <style>
         :root { 
-            --primary: #00d2ff; --success: #00ff88; --danger: #ff416c; 
-            --warning: #ffb100; --card-bg: rgba(15, 23, 42, 0.85); 
+            --gold: #d4af37; --primary: #00d2ff; --success: #00ff88; 
+            --danger: #ff416c; --warning: #ffb100; --bg: #05080f;
         }
 
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 15px; 
-            color: white; min-height: 100vh;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
-                        url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=2000&auto=format&fit=crop'); 
-            background-size: cover; background-position: center; background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 15px; 
+            color: white; background: var(--bg); min-height: 100vh;
         }
 
         .glass { 
-            background: var(--card-bg); backdrop-filter: blur(15px);
-            border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px;
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px);
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); 
+            padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            margin-bottom: 20px;
         }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-item { text-align: center; padding: 15px; border-radius: 15px; transition: 0.3s; border-bottom: 3px solid transparent; }
-        .stat-item:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); }
+        /* الإحصائيات */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-item { text-align: center; padding: 15px; border-radius: 15px; border-top: 3px solid var(--primary); }
 
         .main-layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+
+        /* الكروت */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .product-card { background: rgba(255,255,255,0.03); border-radius: 15px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); transition: 0.3s; position: relative; }
+        .product-card:hover { transform: translateY(-5px); border-color: var(--gold); }
+        .product-img { width: 100%; height: 110px; object-fit: cover; }
         
-        input, select { 
-            width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3);
-            color: white; outline: none; font-size: 14px;
-        }
+        .low-stock-alert { animation: pulse-red 1.5s infinite; border: 2px solid var(--danger) !important; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 65, 108, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0); } }
 
-        button { 
-            cursor: pointer; border: none; border-radius: 10px; font-weight: bold; 
-            transition: 0.2s; 
-        }
-        button:active { transform: scale(0.95); }
-
-        .btn-main { background: linear-gradient(90deg, #00d2ff, #3a7bd5); color: white; padding: 12px; width: 100%; }
-        .btn-buy { background: var(--success); color: #000; padding: 5px 10px; font-size: 12px; }
-        .btn-sell { background: var(--primary); color: #000; padding: 5px 10px; font-size: 12px; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: right; color: var(--primary); padding: 15px 10px; border-bottom: 2px solid rgba(255,255,255,0.1); }
-        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-        .low-stock { color: var(--danger); font-weight: bold; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.5; } }
-
-        #loginOverlay { 
-            position: fixed; inset: 0; background: #000; z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-        }
-
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; box-sizing: border-box; }
+        
+        .btn { padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; }
+        .btn-gold { background: linear-gradient(90deg, #d4af37, #f9d976); color: #000; }
+        .btn-danger { background: var(--danger); color: white; }
+        
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        td, th { padding: 10px; border-bottom: 1px solid #1e293b; text-align: right; }
+        
         @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div id="loginOverlay">
-    <div class="glass" style="width: 300px; text-align: center;">
-        <h2 style="color: var(--primary)">AL-MADINA</h2>
+<div id="loginOverlay" class="modal" style="display: flex;">
+    <div class="glass" style="width: 300px; text-align: center; border: 1px solid var(--gold);">
+        <h2 style="color: var(--gold)">CITY SYSTEM VIP</h2>
         <input type="password" id="passIn" placeholder="رمز الدخول">
-        <button class="btn-main" onclick="login()">دخول النظام</button>
+        <button class="btn btn-gold" onclick="login()">فتح النظام الملكي</button>
+    </div>
+</div>
+
+<div id="financeModal" class="modal">
+    <div class="glass" style="width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto;">
+        <h2 style="color:var(--warning)">💰 الخزنة المالية العميقة</h2>
+        <div class="stats-grid">
+            <div class="glass"><h4>إجمالي الأرباح</h4><p id="totalProf" style="color: var(--success)">0</p></div>
+            <div class="glass"><h4>إجمالي المصاريف</h4><p id="totalExp" style="color: var(--danger)">0</p></div>
+            <div class="glass" style="border: 1px solid var(--gold)"><h4>الصافي الحقيقي</h4><p id="netProfit" style="font-size: 22px; color: var(--gold)">0</p></div>
+        </div>
+        <h3>آخر العمليات والمصاريف</h3>
+        <table id="logsTable">
+            <thead><tr><th>التاريخ</th><th>البيان</th><th>المبلغ</th></tr></thead>
+            <tbody></tbody>
+        </table>
+        <button class="btn btn-danger" onclick="document.getElementById('financeModal').style.display='none'" style="margin-top:20px">إغلاق الخزنة</button>
     </div>
 </div>
 
 <div id="mainApp" style="display:none">
-    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <h1 style="margin:0; font-size: 24px; letter-spacing: 1px;">AL-MADINA <span style="color: var(--primary)">SMART SYSTEM</span></h1>
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin:0; font-size: 22px; color: var(--gold);">المدينة المنورة <span style="color: white">| Smart VIP</span></h1>
         <div style="display: flex; gap: 10px;">
-            <button onclick="exportToPDF()" style="background: white; color: black; padding: 8px 15px;">PDF</button>
-            <button onclick="location.reload()" style="background: var(--danger); color: white; padding: 8px 15px;">خروج</button>
+            <button class="btn btn-gold" onclick="openFinance()" style="padding: 8px 15px;">💰 الخزنة</button>
+            <button onclick="exportToPDF()" style="background: white; border:none; padding: 8px 15px; border-radius:10px; cursor:pointer;">PDF</button>
+            <button onclick="location.reload()" class="btn-danger" style="padding: 8px 15px; border-radius:10px;">خروج</button>
         </div>
     </header>
 
     <div class="stats-grid">
-        <div class="glass stat-item" style="border-color: var(--success)"><h4>المبيعات</h4><p id="statSales" style="color: var(--success)">0</p></div>
-        <div class="glass stat-item" style="border-color: var(--danger)"><h4>ديون الزبائن</h4><p id="statDebtsTo" style="color: var(--danger)">0</p></div>
-        <div class="glass stat-item" style="border-color: var(--warning)"><h4>ديون الموردين</h4><p id="statDebtsFor" style="color: var(--warning)">0</p></div>
-        <div class="glass stat-item" style="border-color: var(--primary)"><h4>قيمة المخزن</h4><p id="statInv" style="color: var(--primary)">0</p></div>
+        <div class="glass stat-item" style="border-color: var(--success)"><h4>المبيعات</h4><p id="statSales">0</p></div>
+        <div class="glass stat-item" style="border-color: var(--danger)"><h4>ديون لنا</h4><p id="statDebtsTo">0</p></div>
+        <div class="glass stat-item" style="border-color: var(--warning)"><h4>ديون علينا</h4><p id="statDebtsFor">0</p></div>
+        <div class="glass stat-item" style="border-color: var(--primary)"><h4>بضاعة المخزن</h4><p id="statInv">0</p></div>
     </div>
 
     <div class="main-layout">
         <aside>
-            <div class="glass" style="margin-bottom: 20px;">
-                <h3 style="margin-top:0">📦 صنف جديد</h3>
-                <input type="text" id="pName" placeholder="اسم الجهاز/القطعة">
-                <input type="number" id="pCost" placeholder="سعر الشراء">
-                <input type="number" id="pPrice" placeholder="سعر البيع">
-                <input type="number" id="pQty" placeholder="الكمية الافتتاحية">
-                <button class="btn-main" onclick="addItem()">إضافة للمخزن</button>
+            <div class="glass">
+                <h3 style="margin-top:0; color:var(--primary)">📦 إضافة بضاعة</h3>
+                <input type="text" id="pName" placeholder="اسم المنتج">
+                <input type="number" id="pCost" placeholder="سعر التكلفة">
+                <input type="number" id="pQty" placeholder="الكمية">
+                <button class="btn btn-gold" onclick="addItem()">إدخال للمخزن</button>
             </div>
 
             <div class="glass">
-                <h3 style="margin-top:0">📝 حركة الديون</h3>
+                <h3 style="margin-top:0; color:var(--danger)">💸 تسجيل مصروف</h3>
+                <input type="text" id="expNote" placeholder="بيان (فطور، كهرباء..)">
+                <input type="number" id="expAmt" placeholder="المبلغ">
+                <button class="btn btn-danger" onclick="addExpense()">خصم من الأرباح</button>
+            </div>
+
+            <div class="glass">
+                <h3 style="margin-top:0; color:var(--warning)">📝 الديون</h3>
                 <input type="text" id="debtName" placeholder="الاسم">
                 <input type="number" id="debtAmt" placeholder="المبلغ">
                 <select id="debtType">
-                    <option value="عليه">عليه (أريد منه)</option>
-                    <option value="له">له (يريد مني)</option>
+                    <option value="عليه">عليه (لنا)</option>
+                    <option value="له">له (علينا)</option>
                 </select>
-                <button style="background: var(--warning); color: black; padding:12px; width:100%" onclick="saveGeneralDebt()">تسجيل الدين</button>
+                <button class="btn btn-gold" style="background: var(--warning)" onclick="saveDebt()">حفظ الدين</button>
             </div>
         </aside>
 
         <main>
-            <div id="pdfContent" class="glass">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="margin:0">🔍 إدارة المخزن والعمليات</h3>
-                    <input type="text" id="searchBox" onkeyup="render()" placeholder="ابحث عن جهاز..." style="width:200px">
+            <div class="glass" id="pdfContent">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px">
+                    <h3 style="margin:0">🔍 بضاعة المتجر</h3>
+                    <input type="text" id="search" onkeyup="render()" placeholder="ابحث هنا..." style="width:150px; margin:0; padding:5px">
                 </div>
-                <table id="invTable">
-                    <thead>
-                        <tr>
-                            <th>الجهاز</th>
-                            <th>الكمية</th>
-                            <th>البيع</th>
-                            <th>إجراءات سريعة</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div class="products-grid" id="productsGrid"></div>
             </div>
 
-            <div class="glass" style="margin-top: 20px;">
+            <div class="glass">
                 <h3>📋 سجل الديون النشطة</h3>
-                <table id="logsTable">
-                    <thead><tr><th>التاريخ</th><th>الاسم</th><th>المبلغ</th><th>الحالة</th><th>إجراء</th></tr></thead>
+                <table id="debtTable">
+                    <thead><tr><th>التاريخ</th><th>الاسم</th><th>المبلغ</th><th>الحالة</th><th>حذف</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -147,64 +150,64 @@
 </div>
 
 <script>
-    // الإعدادات المربوطة بالرابط الخاص بك
     const firebaseConfig = {
       apiKey: "AIzaSyB0UM5ITWjtqMFPwAEcVFZbMu4831d_6p0",
       authDomain: "al-madin.firebaseapp.com",
       databaseURL: "https://al-madin-default-rtdb.firebaseio.com/", 
-      projectId: "al-madin",
-      storageBucket: "al-madin.firebasestorage.app",
-      messagingSenderId: "961981230421",
-      appId: "1:961981230421:web:7dfc74e98c4330e99813dc"
+      projectId: "al-madin"
     };
-
     firebase.initializeApp(firebaseConfig);
-    const dbRef = firebase.database().ref('almadina_global_v6');
+    const dbRef = firebase.database().ref('almadina_royal_v10');
 
-    let db = { inventory: [], sales: [], debts: [] };
+    let db = { inventory: [], sales: [], debts: [], expenses: [] };
 
     function login() {
         if(document.getElementById('passIn').value === "009944") {
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             startSync();
-        } else { alert("رمز الدخول خاطئ!"); }
+        }
     }
 
     function startSync() {
-        dbRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) { db = data; render(); }
-        });
+        dbRef.on('value', (s) => { if(s.val()) { db = s.val(); render(); } });
     }
+
+    function getImg(name) { return `https://source.unsplash.com/400x300/?smartphone,mobile,${encodeURIComponent(name)}`; }
 
     function addItem() {
         const name = document.getElementById('pName').value;
         const cost = parseFloat(document.getElementById('pCost').value);
-        const price = parseFloat(document.getElementById('pPrice').value);
-        const qty = parseInt(document.getElementById('pQty').value) || 0;
-        if(!name || !price) return;
+        const qty = parseInt(document.getElementById('pQty').value);
+        if(!name || !cost) return;
         if(!db.inventory) db.inventory = [];
-        db.inventory.push({ name, cost, price, qty });
+        db.inventory.push({ name, cost, qty, img: getImg(name) });
         dbRef.set(db);
-        ['pName','pCost','pPrice','pQty'].forEach(id => document.getElementById(id).value = '');
+        ['pName','pCost','pQty'].forEach(id => document.getElementById(id).value = '');
     }
 
-    function quickTrade(index, type) {
-        const item = db.inventory[index];
-        if(type === 'sell') {
-            if(item.qty > 0) {
-                item.qty--;
-                if(!db.sales) db.sales = [];
-                db.sales.push({ name: item.name, paid: item.price, date: new Date().toLocaleString() });
-            } else { alert("المخزن فارغ!"); return; }
-        } else {
-            item.qty++;
+    function sellItem(i) {
+        const item = db.inventory[i];
+        const price = prompt(`بكم بعت "${item.name}"؟\n(التكلفة عليك: ${item.cost})`);
+        if(price && item.qty > 0) {
+            item.qty--;
+            if(!db.sales) db.sales = [];
+            db.sales.push({ name: item.name, profit: parseFloat(price) - item.cost, price: parseFloat(price), date: new Date().toLocaleString() });
+            dbRef.set(db);
         }
-        dbRef.set(db);
     }
 
-    function saveGeneralDebt() {
+    function addExpense() {
+        const note = document.getElementById('expNote').value;
+        const amt = parseFloat(document.getElementById('expAmt').value);
+        if(!note || !amt) return;
+        if(!db.expenses) db.expenses = [];
+        db.expenses.push({ note, amt, date: new Date().toLocaleString() });
+        dbRef.set(db);
+        document.getElementById('expNote').value=''; document.getElementById('expAmt').value='';
+    }
+
+    function saveDebt() {
         const name = document.getElementById('debtName').value;
         const amount = parseFloat(document.getElementById('debtAmt').value);
         const type = document.getElementById('debtType').value;
@@ -215,63 +218,61 @@
         document.getElementById('debtName').value=''; document.getElementById('debtAmt').value='';
     }
 
-    function collectDebt(index) {
-        const d = db.debts[index];
-        if(!db.sales) db.sales = [];
-        db.sales.push({ name: "تحصيل: " + d.name, paid: d.amount, date: new Date().toLocaleString() });
-        db.debts.splice(index, 1);
-        dbRef.set(db);
-    }
-
-    function deleteLog(type, index) {
-        if(confirm("حذف نهائي؟")) { db[type].splice(index, 1); dbRef.set(db); }
-    }
-
-    function exportToPDF() {
-        const element = document.getElementById('pdfContent');
-        html2pdf().from(element).save('تقرير_المدينة_المنورة.pdf');
+    function openFinance() {
+        const p = prompt("رمز الخزنة:");
+        if(p === "09944") {
+            const tProf = (db.sales || []).reduce((s,i)=>s+i.profit, 0);
+            const tExp = (db.expenses || []).reduce((s,i)=>s+i.amt, 0);
+            document.getElementById('totalProf').innerText = tProf.toLocaleString();
+            document.getElementById('totalExp').innerText = tExp.toLocaleString();
+            document.getElementById('netProfit').innerText = (tProf - tExp).toLocaleString() + " ج.س";
+            
+            let logHTML = (db.sales || []).map(s => `<tr><td>${s.date}</td><td>بيع: ${s.name}</td><td style="color:var(--success)">+${s.profit}</td></tr>`);
+            logHTML += (db.expenses || []).map(e => `<tr><td>${e.date}</td><td>مصروف: ${e.note}</td><td style="color:var(--danger)">-${e.amt}</td></tr>`);
+            document.querySelector('#logsTable tbody').innerHTML = logHTML;
+            document.getElementById('financeModal').style.display = 'flex';
+        }
     }
 
     function render() {
-        const search = document.getElementById('searchBox').value.toLowerCase();
+        const query = document.getElementById('search').value.toLowerCase();
         
-        document.querySelector('#invTable tbody').innerHTML = (db.inventory || [])
-            .map((it, i) => ({...it, id: i}))
-            .filter(it => it.name.toLowerCase().includes(search))
-            .map(it => `
-                <tr>
-                    <td>${it.name}</td>
-                    <td class="${it.qty < 3 ? 'low-stock' : ''}">${it.qty}</td>
-                    <td>${it.price.toLocaleString()}</td>
-                    <td>
-                        <button class="btn-sell" onclick="quickTrade(${it.id}, 'sell')">بيع -1</button>
-                        <button class="btn-buy" onclick="quickTrade(${it.id}, 'buy')">شراء +1</button>
-                    </td>
-                    <td><button onclick="deleteLog('inventory', ${it.id})" style="background:none; color:var(--danger); cursor:pointer">🗑️</button></td>
-                </tr>`).join('');
+        // عرض المنتجات
+        document.getElementById('productsGrid').innerHTML = (db.inventory || []).map((it, i) => {
+            if(!it.name.toLowerCase().includes(query)) return '';
+            const isLow = it.qty <= 2;
+            return `
+            <div class="product-card ${isLow ? 'low-stock-alert' : ''}">
+                <div class="qty-badge" style="background:${isLow ? 'var(--danger)' : 'var(--primary)'}">${it.qty}</div>
+                <img src="${it.img}" class="product-img">
+                <div style="padding:8px">
+                    <div style="font-weight:bold; font-size:12px; height:32px; overflow:hidden">${it.name}</div>
+                    <button class="btn btn-gold" onclick="sellItem(${i})" style="padding:5px; font-size:11px; margin-top:5px">بيع</button>
+                    <button onclick="deleteX('inventory',${i})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:10px; margin-top:5px">حذف</button>
+                </div>
+            </div>`;
+        }).join('');
 
-        document.querySelector('#logsTable tbody').innerHTML = (db.debts || []).map((d, i) => `
-            <tr>
-                <td>${d.date}</td>
-                <td>${d.name}</td>
-                <td>${d.amount.toLocaleString()}</td>
-                <td style="color:${d.type=='له'?'#00ff88':'#ff416c'}">${d.type}</td>
-                <td>
-                    <button onclick="collectDebt(${i})" style="background:none; cursor:pointer">✅</button>
-                    <button onclick="deleteLog('debts', ${i})" style="background:none; cursor:pointer">🗑️</button>
-                </td>
-            </tr>`).join('');
+        // عرض الديون
+        document.querySelector('#debtTable tbody').innerHTML = (db.debts || []).map((d, i) => `
+            <tr><td>${d.date}</td><td>${d.name}</td><td>${d.amount}</td><td style="color:${d.type=='له'?'var(--success)':'var(--danger)'}">${d.type}</td>
+            <td><button onclick="deleteX('debts',${i})" style="background:none; color:white; border:none; cursor:pointer">🗑️</button></td></tr>
+        `).join('');
 
-        const sales = (db.sales || []).reduce((s,i)=>s+i.paid, 0);
+        // تحديث الأرقام العلوية
+        const salesTot = (db.sales || []).reduce((s,i)=>s+i.price, 0);
         const dTo = (db.debts || []).filter(d=>d.type=='عليه').reduce((s,i)=>s+i.amount, 0);
         const dFor = (db.debts || []).filter(d=>d.type=='له').reduce((s,i)=>s+i.amount, 0);
-        const invValue = (db.inventory || []).reduce((s,i)=>s+(i.price*i.qty), 0);
+        const invVal = (db.inventory || []).reduce((s,it)=>s+(it.cost*it.qty), 0);
 
-        document.getElementById('statSales').innerText = sales.toLocaleString() + " ج.س";
-        document.getElementById('statDebtsTo').innerText = dTo.toLocaleString() + " ج.س";
-        document.getElementById('statDebtsFor').innerText = dFor.toLocaleString() + " ج.س";
-        document.getElementById('statInv').innerText = invValue.toLocaleString() + " ج.س";
+        document.getElementById('statSales').innerText = salesTot.toLocaleString();
+        document.getElementById('statDebtsTo').innerText = dTo.toLocaleString();
+        document.getElementById('statDebtsFor').innerText = dFor.toLocaleString();
+        document.getElementById('statInv').innerText = invVal.toLocaleString();
     }
+
+    function deleteX(type, i) { if(confirm("متأكد؟")) { db[type].splice(i, 1); dbRef.set(db); } }
+    function exportToPDF() { html2pdf().from(document.getElementById('pdfContent')).save('تقرير_المدينة.pdf'); }
 </script>
 </body>
 </html>
