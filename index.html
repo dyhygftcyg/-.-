@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CITY SYSTEM VIP | الإدارة والتقارير</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CITY SYSTEM VIP | الإدارة الذكية</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
@@ -13,106 +13,119 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #020617; color: #f8fafc; margin: 0; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #020617; color: #f8fafc; margin: 0; overflow-x: hidden; }
         .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         .gold-gradient { background: linear-gradient(135deg, #d4af37 0%, #f9d976 100%); }
         .low-stock-alert { border: 2px solid #ef4444 !important; animation: pulse-red 2s infinite; }
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        
+        /* تحسين التمرير للجوال */
+        .custom-scroll::-webkit-scrollbar { width: 3px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
+        
+        /* تعديل ارتفاع المحتوى ليناسب طول الشاشة */
+        @media (min-width: 1024px) {
+            .main-content { height: calc(100vh - 180px); }
+        }
     </style>
 </head>
-<body class="h-screen overflow-hidden flex flex-col">
+<body class="min-h-screen flex flex-col p-2 md:p-4">
 
-    <div id="loginOverlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-[#020617]">
-        <div class="glass p-10 rounded-3xl w-full max-w-sm text-center border-t-4 border-[#d4af37]">
-            <h1 class="text-3xl font-bold text-[#d4af37] mb-6">CITY SYSTEM VIP</h1>
-            <input type="password" id="passIn" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-center text-white mb-6 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="رمز الدخول">
-            <button onclick="login()" class="w-full gold-gradient text-black font-bold py-4 rounded-xl hover:opacity-90 transition shadow-lg">فتح النظام</button>
+    <div id="loginOverlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-[#020617] p-4">
+        <div class="glass p-8 md:p-10 rounded-3xl w-full max-w-sm text-center border-t-4 border-[#d4af37] shadow-2xl">
+            <h1 class="text-2xl md:text-3xl font-bold text-[#d4af37] mb-6 uppercase tracking-widest">City VIP Login</h1>
+            <input type="password" id="passIn" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-center text-white mb-6 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="أدخل رمز الدخول">
+            <button onclick="login()" class="w-full gold-gradient text-black font-bold py-4 rounded-xl hover:scale-[1.02] transition-transform shadow-lg">فتح النظام</button>
         </div>
     </div>
 
-    <header class="p-4 glass m-2 rounded-2xl flex justify-between items-center shadow-xl">
-        <div class="flex items-center gap-4">
-            <div class="bg-[#d4af37] text-black w-10 h-10 flex items-center justify-center rounded-xl font-bold">C</div>
-            <h2 class="font-bold text-lg hidden md:block">الإدارة الملكية | تقارير الواتساب 📱</h2>
+    <header class="p-4 glass rounded-2xl flex flex-wrap justify-between items-center gap-4 mb-4 shadow-xl">
+        <div class="flex items-center gap-3">
+            <div class="bg-[#d4af37] text-black w-10 h-10 flex items-center justify-center rounded-xl font-bold shadow-lg">C</div>
+            <h2 class="font-bold text-lg hidden sm:block">الإدارة الملكية</h2>
         </div>
         
-        <div class="flex items-center gap-3">
-            <button onclick="openFinance()" class="bg-yellow-500/10 text-yellow-500 px-4 py-2 rounded-xl border border-yellow-500/20 text-sm font-bold flex items-center gap-2">
+        <div class="flex items-center gap-2">
+            <button onclick="openFinance()" class="bg-yellow-500/10 text-yellow-500 px-3 py-2 rounded-xl border border-yellow-500/20 text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-yellow-500 hover:text-black transition">
                 <i data-lucide="wallet" class="w-4 h-4"></i> الخزنة
             </button>
-            <button onclick="exportToPDF()" class="bg-white/5 px-4 py-2 rounded-xl text-sm font-bold border border-white/10">PDF</button>
-            <button onclick="location.reload()" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-xl text-sm font-bold border border-red-500/20">خروج</button>
+            <button onclick="exportToPDF()" class="bg-white/5 px-3 py-2 rounded-xl text-xs sm:text-sm border border-white/10">PDF</button>
+            <button onclick="location.reload()" class="bg-red-500/20 text-red-500 p-2 rounded-xl border border-red-500/30">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
         </div>
     </header>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 px-2 mb-2">
-        <div class="glass p-4 rounded-2xl border-r-4 border-green-500">
-            <p class="text-slate-400 text-[10px] uppercase">المبيعات</p>
-            <h3 class="text-xl font-bold text-green-400" id="statSales">0</h3>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div class="glass p-4 rounded-2xl border-r-4 border-green-500 shadow-sm">
+            <p class="text-slate-400 text-[10px] uppercase font-bold">المبيعات</p>
+            <h3 class="text-lg md:text-xl font-black text-green-400" id="statSales">0</h3>
         </div>
-        <div class="glass p-4 rounded-2xl border-r-4 border-red-500">
-            <p class="text-slate-400 text-[10px] uppercase">ديون (عليه)</p>
-            <h3 class="text-xl font-bold text-red-400" id="statDebtsTo">0</h3>
+        <div class="glass p-4 rounded-2xl border-r-4 border-red-500 shadow-sm">
+            <p class="text-slate-400 text-[10px] uppercase font-bold">ديون (عليه)</p>
+            <h3 class="text-lg md:text-xl font-black text-red-400" id="statDebtsTo">0</h3>
         </div>
-        <div class="glass p-4 rounded-2xl border-r-4 border-yellow-500">
-            <p class="text-slate-400 text-[10px] uppercase">ديون (له)</p>
-            <h3 class="text-xl font-bold text-yellow-400" id="statDebtsFor">0</h3>
+        <div class="glass p-4 rounded-2xl border-r-4 border-yellow-500 shadow-sm">
+            <p class="text-slate-400 text-[10px] uppercase font-bold">ديون (له)</p>
+            <h3 class="text-lg md:text-xl font-black text-yellow-400" id="statDebtsFor">0</h3>
         </div>
-        <div class="glass p-4 rounded-2xl border-r-4 border-blue-500">
-            <p class="text-slate-400 text-[10px] uppercase">قيمة المخزن</p>
-            <h3 class="text-xl font-bold text-blue-400" id="statInv">0</h3>
+        <div class="glass p-4 rounded-2xl border-r-4 border-blue-500 shadow-sm">
+            <p class="text-slate-400 text-[10px] uppercase font-bold">المخزن</p>
+            <h3 class="text-lg md:text-xl font-black text-blue-400" id="statInv">0</h3>
         </div>
     </div>
 
-    <main class="flex-grow flex flex-col lg:flex-row gap-4 p-2 overflow-hidden">
+    <main class="flex-grow flex flex-col lg:flex-row gap-4 main-content overflow-hidden">
         
-        <aside class="flex-1 flex flex-col gap-4 overflow-y-auto custom-scroll pr-1">
-            <div class="glass p-5 rounded-2xl border-t-2 border-blue-500">
-                <h3 class="text-blue-400 font-bold mb-4 flex items-center gap-2"><i data-lucide="package"></i> بضاعة</h3>
-                <input type="text" id="pName" placeholder="اسم الصنف" class="w-full bg-slate-900/50 p-3 rounded-xl border border-white/5 mb-2">
+        <aside class="w-full lg:w-80 flex flex-col gap-4 overflow-y-auto custom-scroll pr-1">
+            <div class="glass p-4 rounded-2xl border-t-2 border-blue-500">
+                <h3 class="text-blue-400 font-bold mb-3 text-sm flex items-center gap-2"><i data-lucide="package" class="w-4 h-4"></i> إضافة صنف</h3>
+                <input type="text" id="pName" placeholder="الاسم" class="w-full bg-slate-900/50 p-3 rounded-xl border border-white/5 mb-2 outline-none text-sm">
                 <div class="flex gap-2 mb-2">
-                    <input type="number" id="pCost" placeholder="التكلفة" class="w-1/2 bg-slate-900/50 p-3 rounded-xl">
-                    <input type="number" id="pQty" placeholder="الكمية" class="w-1/2 bg-slate-900/50 p-3 rounded-xl">
+                    <input type="number" id="pCost" placeholder="التكلفة" class="w-1/2 bg-slate-900/50 p-3 rounded-xl text-sm">
+                    <input type="number" id="pQty" placeholder="الكمية" class="w-1/2 bg-slate-900/50 p-3 rounded-xl text-sm">
                 </div>
-                <button onclick="addItem()" class="w-full gold-gradient text-black font-bold py-3 rounded-xl shadow-lg">إضافة للمخزن</button>
+                <button onclick="addItem()" class="w-full gold-gradient text-black font-bold py-3 rounded-xl text-sm shadow-md">تأكيد الإضافة</button>
             </div>
 
-            <div class="glass p-5 rounded-2xl border-t-2 border-red-500">
-                <h3 class="text-red-400 font-bold mb-4 flex items-center gap-2"><i data-lucide="minus-circle"></i> مصروف</h3>
-                <input type="text" id="expNote" placeholder="البيان" class="w-full bg-slate-900/50 p-3 rounded-xl mb-2">
-                <input type="number" id="expAmt" placeholder="المبلغ" class="w-full bg-slate-900/50 p-3 rounded-xl mb-3">
-                <button onclick="addExpense()" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl">خصم</button>
+            <div class="glass p-4 rounded-2xl border-t-2 border-red-500">
+                <h3 class="text-red-400 font-bold mb-3 text-sm flex items-center gap-2"><i data-lucide="minus-circle" class="w-4 h-4"></i> مصروف</h3>
+                <input type="text" id="expNote" placeholder="البيان" class="w-full bg-slate-900/50 p-3 rounded-xl mb-2 text-sm">
+                <input type="number" id="expAmt" placeholder="المبلغ" class="w-full bg-slate-900/50 p-3 rounded-xl mb-3 text-sm">
+                <button onclick="addExpense()" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl text-sm shadow-md">سحب مبلغ</button>
             </div>
 
-            <div class="glass p-5 rounded-2xl border-t-2 border-yellow-500">
-                <h3 class="text-yellow-400 font-bold mb-4 flex items-center gap-2"><i data-lucide="users"></i> ديون</h3>
-                <input type="text" id="debtName" placeholder="الاسم" class="w-full bg-slate-900/50 p-3 rounded-xl mb-2">
+            <div class="glass p-4 rounded-2xl border-t-2 border-yellow-500">
+                <h3 class="text-yellow-400 font-bold mb-3 text-sm flex items-center gap-2"><i data-lucide="users" class="w-4 h-4"></i> الديون</h3>
+                <input type="text" id="debtName" placeholder="الاسم" class="w-full bg-slate-900/50 p-3 rounded-xl mb-2 text-sm">
                 <div class="flex gap-2 mb-3">
-                    <input type="number" id="debtAmt" placeholder="المبلغ" class="w-2/3 bg-slate-900/50 p-3 rounded-xl">
-                    <select id="debtType" class="w-1/3 bg-slate-900/50 p-3 rounded-xl">
+                    <input type="number" id="debtAmt" placeholder="المبلغ" class="w-2/3 bg-slate-900/50 p-3 rounded-xl text-sm">
+                    <select id="debtType" class="w-1/3 bg-slate-900/50 p-3 rounded-xl text-xs">
                         <option value="عليه">عليه</option>
                         <option value="له">له</option>
                     </select>
                 </div>
-                <button onclick="saveDebt()" class="w-full bg-yellow-600 font-bold py-3 rounded-xl">حفظ</button>
+                <button onclick="saveDebt()" class="w-full bg-yellow-600 font-bold py-3 rounded-xl text-sm shadow-md">حفظ</button>
             </div>
         </aside>
 
-        <section class="flex-[2] flex flex-col gap-4 overflow-hidden">
-            <div class="glass flex-grow rounded-3xl p-5 flex flex-col overflow-hidden" id="pdfContent">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold flex items-center gap-2 text-blue-400"><i data-lucide="search"></i> المخزن</h3>
-                    <input type="text" id="search" onkeyup="render()" placeholder="بحث سريع..." class="bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none">
+        <section class="flex-grow flex flex-col gap-4 overflow-hidden">
+            <div class="glass flex-grow rounded-3xl p-4 flex flex-col overflow-hidden" id="pdfContent">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
+                    <h3 class="font-bold flex items-center gap-2 text-blue-400 text-sm"><i data-lucide="layout-grid" class="w-4 h-4"></i> المستودع</h3>
+                    <div class="relative w-full sm:w-48">
+                        <i data-lucide="search" class="absolute left-3 top-2.5 w-3 h-3 text-slate-500"></i>
+                        <input type="text" id="search" onkeyup="render()" placeholder="ابحث هنا..." class="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-8 pr-4 py-2 text-xs outline-none">
+                    </div>
                 </div>
-                <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto custom-scroll pr-2"></div>
+                <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 overflow-y-auto custom-scroll pr-2">
+                    </div>
             </div>
 
-            <div class="glass h-48 rounded-3xl p-5 flex flex-col overflow-hidden">
-                <h3 class="font-bold text-sm mb-3 text-yellow-500">سجل الديون</h3>
-                <div class="overflow-y-auto custom-scroll flex-grow text-xs">
-                    <table class="w-full text-right" id="debtTable">
+            <div class="glass h-40 lg:h-48 rounded-3xl p-4 flex flex-col shadow-inner">
+                <h3 class="font-bold text-xs mb-2 text-yellow-500 uppercase tracking-tighter">سجل الديون الأخير</h3>
+                <div class="overflow-y-auto custom-scroll flex-grow">
+                    <table class="w-full text-right text-[11px] sm:text-xs" id="debtTable">
                         <tbody class="divide-y divide-white/5"></tbody>
                     </table>
                 </div>
@@ -120,27 +133,31 @@
         </section>
     </main>
 
-    <div id="financeModal" class="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
-        <div class="glass w-full max-w-2xl p-8 rounded-[2.5rem] border-t-4 border-yellow-500 overflow-hidden flex flex-col max-h-[90vh]">
-            <h2 class="text-2xl font-bold text-yellow-500 mb-6 flex justify-between items-center">💰 الخزنة المالية <span id="netProfit" class="text-white text-sm">0</span></h2>
-            <div class="grid grid-cols-2 gap-4 mb-4 text-center">
-                <div class="bg-green-500/10 p-4 rounded-2xl border border-green-500/20">
-                    <p class="text-xs text-slate-400">أرباح</p><h4 class="text-xl font-bold text-green-400" id="totalProf">0</h4>
+    <div id="financeModal" class="fixed inset-0 z-[10000] bg-black/95 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="glass w-full max-w-xl p-6 md:p-8 rounded-[2rem] border-t-4 border-yellow-500 flex flex-col max-h-[85vh]">
+            <h2 class="text-xl font-bold text-yellow-500 mb-6 flex justify-between items-center">
+                📊 الخزنة والارباح
+                <span id="netProfit" class="text-white bg-[#d4af37]/20 px-3 py-1 rounded-full text-xs">0</span>
+            </h2>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-green-500/10 p-3 rounded-xl border border-green-500/20 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase">أرباح</p><h4 class="text-lg font-bold text-green-400" id="totalProf">0</h4>
                 </div>
-                <div class="bg-red-500/10 p-4 rounded-2xl border border-red-500/20">
-                    <p class="text-xs text-slate-400">مصاريف</p><h4 class="text-xl font-bold text-red-400" id="totalExp">0</h4>
+                <div class="bg-red-500/10 p-3 rounded-xl border border-red-500/20 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase">مصاريف</p><h4 class="text-lg font-bold text-red-400" id="totalExp">0</h4>
                 </div>
             </div>
-            <div class="overflow-y-auto custom-scroll flex-grow">
-                <table class="w-full text-right text-sm" id="logsTable"><tbody></tbody></table>
+            <div class="overflow-y-auto custom-scroll flex-grow mb-4">
+                <table class="w-full text-right text-[10px] sm:text-xs" id="logsTable">
+                    <tbody class="divide-y divide-white/5"></tbody>
+                </table>
             </div>
-            <button onclick="document.getElementById('financeModal').style.display='none'" class="w-full bg-white/5 mt-4 py-3 rounded-xl">إغلاق</button>
+            <button onclick="document.getElementById('financeModal').style.display='none'" class="w-full bg-white/5 py-4 rounded-xl text-sm font-bold active:scale-95 transition">إغلاق النافذة</button>
         </div>
     </div>
 
     <script>
-        // --- إعدادات فايربيس والرقم ---
-        const myPhoneNumber = "249123456789"; // ضع رقمك هنا بدون (+)
+        const myPhoneNumber = "249998481301"; // عدل رقمك هنا
         const firebaseConfig = {
             apiKey: "AIzaSyB0UM5ITWjtqMFPwAEcVFZbMu4831d_6p0",
             authDomain: "al-madin.firebaseapp.com",
@@ -153,9 +170,8 @@
 
         lucide.createIcons();
 
-        // دالة إرسال واتساب
         function sendToWA(msg) {
-            const url = `https://wa.me/${myPhoneNumber}?text=${encodeURIComponent("⭐ *CITY SYSTEM REPORT* ⭐\n" + msg)}`;
+            const url = `https://wa.me/${myPhoneNumber}?text=${encodeURIComponent("🔔 *تقرير إداري CITY VIP*:\n" + msg)}`;
             window.open(url, '_blank');
         }
 
@@ -163,29 +179,29 @@
             if(document.getElementById('passIn').value === "009944") {
                 document.getElementById('loginOverlay').style.display = 'none';
                 startSync();
-            } else { alert("رمز خاطئ!"); }
+            } else { alert("الرمز غير صحيح!"); }
         }
 
         function startSync() { dbRef.on('value', (s) => { if(s.val()) { db = s.val(); render(); } }); }
 
         function addItem() {
             const name = document.getElementById('pName').value, cost = parseFloat(document.getElementById('pCost').value), qty = parseInt(document.getElementById('pQty').value);
-            if(!name || isNaN(cost)) return;
+            if(!name || isNaN(cost) || isNaN(qty)) return;
             if(!db.inventory) db.inventory = [];
             db.inventory.push({ name, cost, qty, img: `https://picsum.photos/400/300?random=${Math.random()}` });
-            dbRef.set(db).then(() => sendToWA(`📦 *إضافة بضاعة*\nالمنتج: ${name}\nالكمية: ${qty}\nالتكلفة: ${cost}`));
+            dbRef.set(db).then(() => sendToWA(`📦 إضافة بضاعة: ${name}\nالكمية: ${qty}`));
             ['pName','pCost','pQty'].forEach(id => document.getElementById(id).value = '');
         }
 
         function sellItem(i) {
             const item = db.inventory[i];
-            const price = prompt(`سعر البيع لـ "${item.name}"؟\nالتكلفة: ${item.cost}`);
+            const price = prompt(`سعر البيع لـ "${item.name}"؟\nالتكلفة الحالية: ${item.cost}`);
             if(price && item.qty > 0) {
                 item.qty--;
                 const profit = parseFloat(price) - item.cost;
                 if(!db.sales) db.sales = [];
-                db.sales.push({ name: item.name, profit, price: parseFloat(price), date: new Date().toLocaleString() });
-                dbRef.set(db).then(() => sendToWA(`💰 *عملية بيع*\nالمنتج: ${item.name}\nالسعر: ${price}\nالربح: ${profit}\nالمتبقي: ${item.qty}`));
+                db.sales.push({ name: item.name, profit, price: parseFloat(price), date: new Date().toLocaleString('ar-SA') });
+                dbRef.set(db).then(() => sendToWA(`💰 تم بيع: ${item.name}\nالسعر: ${price}\nالربح: ${profit}`));
             }
         }
 
@@ -193,8 +209,8 @@
             const note = document.getElementById('expNote').value, amt = parseFloat(document.getElementById('expAmt').value);
             if(!note || isNaN(amt)) return;
             if(!db.expenses) db.expenses = [];
-            db.expenses.push({ note, amt, date: new Date().toLocaleString() });
-            dbRef.set(db).then(() => sendToWA(`💸 *خصم مصروف*\nالبيان: ${note}\nالمبلغ: ${amt}`));
+            db.expenses.push({ note, amt, date: new Date().toLocaleString('ar-SA') });
+            dbRef.set(db).then(() => sendToWA(`💸 مصروف: ${note}\nالمبلغ: ${amt}`));
             document.getElementById('expNote').value=''; document.getElementById('expAmt').value='';
         }
 
@@ -202,8 +218,8 @@
             const name = document.getElementById('debtName').value, amount = parseFloat(document.getElementById('debtAmt').value), type = document.getElementById('debtType').value;
             if(!name || isNaN(amount)) return;
             if(!db.debts) db.debts = [];
-            db.debts.push({ name, amount, type, date: new Date().toLocaleDateString() });
-            dbRef.set(db).then(() => sendToWA(`📝 *تسجيل دين*\nالاسم: ${name}\nالمبلغ: ${amount}\nالحالة: ${type}`));
+            db.debts.push({ name, amount, type, date: new Date().toLocaleDateString('ar-SA') });
+            dbRef.set(db).then(() => sendToWA(`📝 دين لـ: ${name}\nالمبلغ: ${amount}\nالحالة: ${type}`));
             document.getElementById('debtName').value=''; document.getElementById('debtAmt').value='';
         }
 
@@ -211,11 +227,11 @@
             if(prompt("رمز الخزنة:") === "09944") {
                 const tProf = (db.sales || []).reduce((s,i)=>s+i.profit, 0);
                 const tExp = (db.expenses || []).reduce((s,i)=>s+i.amt, 0);
-                document.getElementById('totalProf').innerText = tProf;
-                document.getElementById('totalExp').innerText = tExp;
-                document.getElementById('netProfit').innerText = "الصافي: " + (tProf - tExp);
-                let logs = (db.sales || []).map(s => `<tr><td>${s.date}</td><td>بيع: ${s.name}</td><td class="text-green-400">+${s.profit}</td></tr>`).reverse().join('');
-                logs += (db.expenses || []).map(e => `<tr><td>${e.date}</td><td>مصروف: ${e.note}</td><td class="text-red-400">-${e.amt}</td></tr>`).reverse().join('');
+                document.getElementById('totalProf').innerText = tProf.toLocaleString();
+                document.getElementById('totalExp').innerText = tExp.toLocaleString();
+                document.getElementById('netProfit').innerText = "صافي الكاش: " + (tProf - tExp).toLocaleString();
+                let logs = (db.sales || []).map(s => `<tr class="border-b border-white/5"><td class="p-2">${s.date}</td><td class="p-2">بيع: ${s.name}</td><td class="p-2 text-green-400">+${s.profit}</td></tr>`).reverse().join('');
+                logs += (db.expenses || []).map(e => `<tr class="border-b border-white/5"><td class="p-2">${e.date}</td><td class="p-2">مصروف: ${e.note}</td><td class="p-2 text-red-400">-${e.amt}</td></tr>`).reverse().join('');
                 document.querySelector('#logsTable tbody').innerHTML = logs;
                 document.getElementById('financeModal').style.display = 'flex';
             }
@@ -227,20 +243,20 @@
                 if(!it.name.toLowerCase().includes(query)) return '';
                 const isLow = it.qty <= 2;
                 return `
-                <div class="glass p-3 rounded-2xl relative ${isLow ? 'low-stock-alert' : ''}">
-                    <div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-bold z-10 ${isLow ? 'bg-red-500' : 'bg-[#d4af37] text-black'}">${it.qty}</div>
-                    <img src="${it.img}" class="w-full h-24 object-cover rounded-xl mb-3">
-                    <div class="text-[11px] font-bold truncate mb-2">${it.name}</div>
-                    <div class="flex gap-2">
-                        <button onclick="sellItem(${i})" class="flex-1 bg-green-600/20 text-green-500 py-1.5 rounded-lg text-[10px] font-bold">بيع</button>
-                        <button onclick="deleteX('inventory',${i})" class="bg-red-500/10 text-red-500 p-1.5 rounded-lg"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                <div class="glass p-2 rounded-2xl relative shadow-md transition-all hover:border-[#d4af37]/50 ${isLow ? 'low-stock-alert' : ''}">
+                    <div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[9px] font-bold z-10 ${isLow ? 'bg-red-500' : 'bg-[#d4af37] text-black'}">Q: ${it.qty}</div>
+                    <img src="${it.img}" class="w-full h-20 sm:h-24 object-cover rounded-xl mb-2">
+                    <div class="text-[10px] sm:text-[11px] font-bold truncate mb-2">${it.name}</div>
+                    <div class="flex gap-1">
+                        <button onclick="sellItem(${i})" class="flex-1 bg-green-600/20 text-green-500 py-2 rounded-lg text-[9px] font-black uppercase">بيع</button>
+                        <button onclick="deleteX('inventory',${i})" class="bg-red-500/10 text-red-500 p-2 rounded-lg"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                     </div>
                 </div>`;
             }).join('');
 
             document.querySelector('#debtTable tbody').innerHTML = (db.debts || []).map((d, i) => `
-                <tr class="border-b border-white/5"><td class="p-2">${d.name}</td><td class="p-2 font-bold">${d.amount}</td><td class="p-2 ${d.type=='له'?'text-green-400':'text-red-400'}">${d.type}</td>
-                <td><button onclick="deleteX('debts',${i})">🗑️</button></td></tr>
+                <tr class="border-b border-white/5"><td class="p-2 font-bold">${d.name}</td><td class="p-2 font-black">${d.amount}</td><td class="p-2 font-bold ${d.type=='له'?'text-green-400':'text-red-400'}">${d.type}</td>
+                <td class="p-2 text-left"><button onclick="deleteX('debts',${i})" class="text-white/20 hover:text-red-500"><i data-lucide="x" class="w-3 h-3"></i></button></td></tr>
             `).join('');
 
             const salesTot = (db.sales || []).reduce((s,i)=>s+i.price, 0);
@@ -255,8 +271,8 @@
             lucide.createIcons();
         }
 
-        function deleteX(type, i) { if(confirm("حذف؟")) { db[type].splice(i, 1); dbRef.set(db); } }
-        function exportToPDF() { html2pdf().from(document.getElementById('pdfContent')).save('تقرير_المدينة.pdf'); }
+        function deleteX(type, i) { if(confirm("هل تريد الحذف نهائياً؟")) { db[type].splice(i, 1); dbRef.set(db); } }
+        function exportToPDF() { html2pdf().from(document.getElementById('pdfContent')).save('VIP_Inventory.pdf'); }
     </script>
 </body>
 </html>
